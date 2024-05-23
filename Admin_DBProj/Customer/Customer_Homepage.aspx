@@ -29,6 +29,18 @@
                 <a href="Register/Customer_Register.aspx" class="cta-button">Join Now</a>
             </nav>
     </header>
+
+   <section class="recent-orders">
+    <h2>Recent Orders</h2>
+    <asp:GridView ID="gvRecentOrders" runat="server" AutoGenerateColumns="False" CssClass="table table-striped">
+        <Columns>
+            <asp:BoundField DataField="PRODUCT_NAME" HeaderText="Product Name" />
+            <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="Product Price" />
+            <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="Quantity" />
+        </Columns>
+    </asp:GridView>
+    <asp:SqlDataSource runat="server" ID="SqlDataSource1" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SP_RECENTORDERS_USER" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+    </section>
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-text">
@@ -40,19 +52,7 @@
         <img class="active" src="../Images/topviewmugs.jpg" alt="Coffee Making"/>
         <img class="active" src="../Images/topviewroasted.jpg" alt="topviewcup2"/>
     </section>
-
-    <!-- GridView for Recent Orders -->
-    <section class="recent-orders">
-        <h2>Recent Orders</h2>
-        <asp:GridView ID="gvRecentOrders" runat="server" AutoGenerateColumns="False" CssClass="table table-striped">
-            <Columns>
-                <asp:BoundField DataField="PRODUCT_NAME" HeaderText="Product Name" />
-                <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="Product Price" />
-                <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="Quantity" />
-            </Columns>
-        </asp:GridView>
-        <asp:SqlDataSource runat="server" ID="SqlDataSource1" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SP_RECENTORDERS_USER" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
-    </section>
+   
     </form>
     <script src="js/main.js"></script>
 </body>
