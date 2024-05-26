@@ -56,10 +56,24 @@ namespace Admin_DBProj.Customer.Register
                     command.Parameters.AddWithValue("@ACC_PNUM", contactNumber);
                     command.Parameters.AddWithValue("@ACC_PASSWORD", password);
 
+                    SqlParameter accIdParam = new SqlParameter("@ACC_ID", SqlDbType.Int);
+                    accIdParam.Direction = ParameterDirection.Output;
+                    command.Parameters.Add(accIdParam);
+
                     try
                     {
                         connection.Open();
                         command.ExecuteNonQuery();
+
+                        int accId = (int)accIdParam.Value;
+
+                        // Call the AddAddressToSavedDelivery stored procedure
+                        using (SqlCommand addAddressCommand = new SqlCommand("SP_INSERT_SAVEDADDRESS", connection))
+                        {
+                            addAddressCommand.CommandType = CommandType.StoredProcedure;
+                            addAddressCommand.Parameters.AddWithValue("@AccId", accId);
+                            addAddressCommand.ExecuteNonQuery();
+                        }
 
                         // Clear the input fields after adding the customer
                         ClearInputBoxes();
@@ -75,6 +89,7 @@ namespace Admin_DBProj.Customer.Register
                 }
             }
         }
+
 
         private void ClearInputBoxes()
         {

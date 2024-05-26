@@ -75,6 +75,8 @@ nav a:hover {
     height: 100vh;
     text-align: left; /* Align text to the left */
     color: #fff;
+    top: 0px;
+    left: 0px;
 }
 
 .hero img {

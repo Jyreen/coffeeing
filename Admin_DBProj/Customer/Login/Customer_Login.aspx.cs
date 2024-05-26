@@ -16,7 +16,6 @@ namespace Admin_DBProj.Customer.Login
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -29,7 +28,7 @@ namespace Admin_DBProj.Customer.Login
                 {
                     cn.Open();
 
-                    string query = "SELECT ACC_EMAIL, ACC_PASSWORD FROM ACCOUNT WHERE ACC_EMAIL = @EMAIL AND ACC_PASSWORD = @PASSWORD";
+                    string query = "SELECT ACC_ID_PK, ACC_EMAIL, ACC_PASSWORD FROM ACCOUNT WHERE ACC_EMAIL = @EMAIL AND ACC_PASSWORD = @PASSWORD";
                     using (SqlCommand customerCmd = new SqlCommand(query, cn))
                     {
                         customerCmd.Parameters.AddWithValue("@EMAIL", email.Text);
@@ -41,6 +40,10 @@ namespace Admin_DBProj.Customer.Login
 
                         if (customerDt.Rows.Count > 0)
                         {
+                            // Store AccountID in session
+                            int accountId = Convert.ToInt32(customerDt.Rows[0]["ACC_ID_PK"]);
+                            Session["AccountId"] = accountId;
+
                             Response.Redirect("~/Customer/Customer_Homepage.aspx");
                         }
                         else

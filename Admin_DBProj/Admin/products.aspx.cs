@@ -247,6 +247,7 @@ namespace Admin_DBProj
                         con.Open();
                         command.ExecuteNonQuery();
                         string script = "<script type=\"text/javascript\">alert('Product updated successfully!');</script>";
+                        BindGridView();
                         Response.Write(script);
                     }
                     catch (Exception ex)

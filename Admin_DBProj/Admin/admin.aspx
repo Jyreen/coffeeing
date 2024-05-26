@@ -1,6 +1,13 @@
 ﻿%@ Page Language="C#" AutoEventWireup="true" CodeBehind="admin.aspx.cs" Inherits="Admin_DBProj.login" %>
 
 <!DOCTYPE html>
+<script runat="server">
+
+    Protected Sub Button1_Click(sender As Object, e As EventArgs)
+
+    End Sub
+</script>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">

@@ -4,16 +4,17 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Web.Script.Serialization;
 
 namespace Admin_DBProj.Customer
 {
     public partial class Customer_Cart : System.Web.UI.Page
     {
-        protected List<CartItem> CartItems { get; set; }
-        protected decimal Subtotal { get; set; }
-        protected decimal Tax { get; set; }
-        protected decimal Shipping { get; set; }
-        protected decimal GrandTotal { get; set; }
+        public List<CartItem> CartItems { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal Tax { get; set; }
+        public decimal Shipping { get; set; }
+        public decimal GrandTotal { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -21,26 +22,48 @@ namespace Admin_DBProj.Customer
             {
                 LoadCartItems();
 
-                if (Request.QueryString["productName"] != null && Request.QueryString["quantity"] != null)
+                if (Request.QueryString["productId"] != null && Request.QueryString["productName"] != null && Request.QueryString["quantity"] != null)
                 {
-                    string productName = Request.QueryString["productName"];
-                    int quantity;
-                    if (int.TryParse(Request.QueryString["quantity"], out quantity))
+                    int productId;
+                    if (int.TryParse(Request.QueryString["productId"], out productId))
                     {
-                        AddToCart(productName, quantity);
+                        string productName = Request.QueryString["productName"];
+                        int quantity;
+                        if (int.TryParse(Request.QueryString["quantity"], out quantity))
+                        {
+                            AddToCart(productId, productName, quantity);
+                        }
                     }
                 }
 
                 CalculateTotals();
             }
+            else
+            {
+                // Process the hidden field data during postback
+                string cartDataJson = cartDataHiddenField.Value;
+                if (!string.IsNullOrEmpty(cartDataJson))
+                {
+                    var cartData = new JavaScriptSerializer().Deserialize<List<CartItem>>(cartDataJson);
+                    foreach (var item in cartData)
+                    {
+                        var cartItem = CartItems.FirstOrDefault(ci => ci.ProductID == item.ProductID);
+                        if (cartItem != null)
+                        {
+                            cartItem.Quantity = item.Quantity;
+                        }
+                    }
+                    Session["CartItems"] = CartItems;
+                }
+            }
         }
 
-        private void AddToCart(string productName, int quantity)
+        private void AddToCart(int productId, string productName, int quantity)
         {
-            Product product = GetProductsFromDataBase().FirstOrDefault(p => p.PRODUCT_NAME == productName);
+            Product product = GetProductsFromDataBase().FirstOrDefault(p => p.PRODUCT_ID == productId);
             if (product != null)
             {
-                CartItem existingCartItem = CartItems.FirstOrDefault(ci => ci.ProductName == productName);
+                CartItem existingCartItem = CartItems.FirstOrDefault(ci => ci.ProductID == productId);
                 if (existingCartItem != null)
                 {
                     existingCartItem.Quantity += quantity;
@@ -49,6 +72,7 @@ namespace Admin_DBProj.Customer
                 {
                     CartItem cartItem = new CartItem
                     {
+                        ProductID = product.PRODUCT_ID,
                         ProductName = product.PRODUCT_NAME,
                         Quantity = quantity,
                         ProductDesc = product.PRODUCT_DESC,
@@ -71,6 +95,21 @@ namespace Admin_DBProj.Customer
             else
             {
                 CartItems = new List<CartItem>();
+            }
+
+            // Load quantities from localStorage
+            if (Request.Cookies["cartData"] != null)
+            {
+                string cartDataJson = Request.Cookies["cartData"].Value;
+                var cartData = new JavaScriptSerializer().Deserialize<List<CartItem>>(cartDataJson);
+                foreach (var item in cartData)
+                {
+                    var cartItem = CartItems.FirstOrDefault(ci => ci.ProductID == item.ProductID);
+                    if (cartItem != null)
+                    {
+                        cartItem.Quantity = item.Quantity;
+                    }
+                }
             }
         }
 
@@ -99,11 +138,12 @@ namespace Admin_DBProj.Customer
                         {
                             Product product = new Product
                             {
+                                PRODUCT_ID = Convert.ToInt32(reader["PRODUCT_ID_PK"]),
                                 PRODUCT_NAME = reader["PRODUCT_NAME"].ToString(),
                                 PRODUCT_DESC = reader["PRODUCT_DESC"].ToString(),
                                 PRODUCT_PRICE = Convert.ToDecimal(reader["PRODUCT_PRICE"]),
                                 PRODUCT_IMG = reader["PRODUCT_IMG"].ToString(),
-                                PRODUCT_STATUS = Convert.ToDecimal(reader["PRODUCT_STATUS"])
+                                PRODUCT_STATUS = Convert.ToInt32(reader["PRODUCT_STATUS"])
                             };
                             products.Add(product);
                         }
@@ -116,6 +156,7 @@ namespace Admin_DBProj.Customer
 
     public class CartItem
     {
+        public int ProductID { get; set; }
         public string ProductName { get; set; }
         public string ProductDesc { get; set; }
         public decimal ProductPrice { get; set; }

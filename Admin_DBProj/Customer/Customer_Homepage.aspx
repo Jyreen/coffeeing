@@ -25,21 +25,24 @@
                 <a href="#"><i class="fas fa-search"></i></a> 
                 <a href="#">Home</a>
                 <a href="Customer_Products.aspx">Shop</a> 
-                <a href="Login/Customer_Login.aspx">Login</a>
-                <a href="Register/Customer_Register.aspx" class="cta-button">Join Now</a>
+                <a href="Login/Customer_Login.aspx" id="Login" runat="server">Login</a>
             </nav>
     </header>
 
    <section class="recent-orders">
     <h2>Recent Orders</h2>
-    <asp:GridView ID="gvRecentOrders" runat="server" AutoGenerateColumns="False" CssClass="table table-striped">
+    <asp:GridView ID="gvRecentOrders" runat="server" AutoGenerateColumns="False" CssClass="table table-striped" DataSourceID="SqlDataSource1">
         <Columns>
-            <asp:BoundField DataField="PRODUCT_NAME" HeaderText="Product Name" />
-            <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="Product Price" />
-            <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="Quantity" />
+            <asp:BoundField DataField="PRODUCT_NAME" HeaderText="PRODUCT_NAME" SortExpression="PRODUCT_NAME" />
+            <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="PRODUCT_PRICE" SortExpression="PRODUCT_PRICE" />
+            <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="ORDER_DETAILS_QUANTITY" SortExpression="ORDER_DETAILS_QUANTITY" />
         </Columns>
     </asp:GridView>
-    <asp:SqlDataSource runat="server" ID="SqlDataSource1" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SP_RECENTORDERS_USER" SelectCommandType="StoredProcedure"></asp:SqlDataSource>
+       <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SP_RECENTORDERS_USER" SelectCommandType="StoredProcedure">
+           <SelectParameters>
+               <asp:SessionParameter Name="AccountID" SessionField="AccountID" Type="Int32" />
+           </SelectParameters>
+       </asp:SqlDataSource>
     </section>
     <!-- Hero Section -->
     <section class="hero">

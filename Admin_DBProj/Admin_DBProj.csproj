@@ -135,6 +135,7 @@
     <Content Include="Customer\Customer_Homepage.aspx" />
     <Content Include="Customer\Customer_Products.aspx" />
     <Content Include="Customer\js\cart.js" />
+    <Content Include="Customer\js\checkout.js" />
     <Content Include="Customer\js\main.js" />
     <Content Include="Customer\Login\Customer_Login.aspx" />
     <Content Include="Customer\Register\Customer_Register.aspx" />
@@ -193,6 +194,7 @@
     <Content Include="Content\bootstrap-grid.rtl.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="libman.json" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

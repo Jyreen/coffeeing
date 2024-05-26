@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Customer_Products.aspx.cs" Inherits="Admin_DBProj.Customer.Customer_Products" %>
+﻿﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Customer_Products.aspx.cs" Inherits="Admin_DBProj.Customer.Customer_Products" %>
 
 <!DOCTYPE html>
 
@@ -61,11 +61,11 @@
                             <div class="menu-item-details">
                                 <div class="menu-item-name"><%= product.PRODUCT_NAME %></div>
                                 <div class="menu-item-description"><%= product.PRODUCT_DESC %></div>
-                                <div class="menu-item-price"><%= product.PRODUCT_PRICE %></div>
+                                <div class="menu-item-price">$ <%= product.PRODUCT_PRICE %></div>
                             </div>
                             <div class="quantity-and-cart">
-                                <input type="number" class="quantity-input" value="1" min="1" id="quantity_<%= product.PRODUCT_NAME %>">
-                                <a class="add-to-cart-button" href="#" onclick="addToCart('<%= product.PRODUCT_NAME %>'); return false;">Add to Cart</a>
+                                <input type="number" class="quantity-input" value="1" min="1" id="quantity_<%= product.PRODUCT_ID %>">
+                                <a class="add-to-cart-button" href="#" onclick="addToCart(<%= product.PRODUCT_ID %>, '<%= product.PRODUCT_NAME %>'); return false;">Add to Cart</a>
                             </div>
                         </div>
                     <% } %>
@@ -74,9 +74,9 @@
     </section>
     </form>
     <script>
-        function addToCart(productName) {
-            const quantity = document.getElementById(`quantity_${productName}`).value;
-            window.location.href = `Customer_Cart.aspx?productName=${productName}&quantity=${quantity}`;
+        function addToCart(productId, productName) {
+            const quantity = document.getElementById(`quantity_${productId}`).value;
+            window.location.href = `Customer_Cart.aspx?productId=${productId}&productName=${productName}&quantity=${quantity}`;
         }
     </script>
 </body>

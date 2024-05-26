@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Customer_Cart.aspx.cs" Inherits="Admin_DBProj.Customer.Customer_Cart" %>
+﻿﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Customer_Cart.aspx.cs" Inherits="Admin_DBProj.Customer.Customer_Cart" %>
 
 <!DOCTYPE html>
 
@@ -16,6 +16,9 @@
 <body>
     <form id="form1" runat="server">
     <header class="auto-style1">
+        <!-- Hidden field to store cart data -->
+        <input type="hidden" id="cartDataHiddenField" runat="server" />
+
         <a href="../App_Start/"></a>
         <div class="logo">
             <a href="Customer_Homepage.aspx"><span>COFFEING</span></a>
@@ -47,7 +50,7 @@
                                 <div class="cart-item-price">$<%= cartItem.ProductPrice.ToString("0.00") %></div>
                             </div>
                             <div class="quantity-and-remove">
-                                <input type="number" class="quantity-input" value="<%= cartItem.Quantity %>" min="1" data-product-name="<%= cartItem.ProductName %>">
+                                <input type="number" class="quantity-input" value="<%= cartItem.Quantity %>" min="1" data-product-name="<%= cartItem.ProductName %>" />
                                 <button class="remove-from-cart-button" onclick="removeFromCart('<%= cartItem.ProductName %>')">Remove</button>
                             </div>
                         </div>
@@ -73,8 +76,8 @@
                     </div>
                 </div>
                 <div class="button-container text-center">
-                    <button class="checkout">Checkout</button>
-                    <button class="cancel">Cancel</button>
+                    <button type="button" class="checkout" onclick="checkout()">Checkout</button>
+                    <button type="button" class="cancel" onclick="cancel()">Cancel</button>
                 </div>
         </section>
     </form>

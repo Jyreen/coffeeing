@@ -38,12 +38,15 @@ namespace Admin_DBProj.Customer
                     {
                         while (reader.Read())
                         {
-                            Product product = new Product();
-                            product.PRODUCT_NAME = reader["PRODUCT_NAME"].ToString();
-                            product.PRODUCT_DESC = reader["PRODUCT_DESC"].ToString();
-                            product.PRODUCT_PRICE = Convert.ToInt64(reader["PRODUCT_PRICE"]);
-                            product.PRODUCT_IMG = reader["PRODUCT_IMG"].ToString();
-                            product.PRODUCT_STATUS = Convert.ToInt64(reader["PRODUCT_STATUS"]);
+                            Product product = new Product
+                            {
+                                PRODUCT_ID = Convert.ToInt32(reader["PRODUCT_ID_PK"]),
+                                PRODUCT_NAME = reader["PRODUCT_NAME"].ToString(),
+                                PRODUCT_DESC = reader["PRODUCT_DESC"].ToString(),
+                                PRODUCT_PRICE = Convert.ToInt64(reader["PRODUCT_PRICE"]),
+                                PRODUCT_IMG = reader["PRODUCT_IMG"].ToString(),
+                                PRODUCT_STATUS = Convert.ToInt32(reader["PRODUCT_STATUS"])
+                            };
                             products.Add(product);
                         }
                     }
@@ -55,6 +58,7 @@ namespace Admin_DBProj.Customer
 
     public class Product
     {
+        public int PRODUCT_ID { get; set; }
         public string PRODUCT_NAME { get; set; }
         public string PRODUCT_DESC { get; set; }
         public decimal PRODUCT_PRICE { get; set; }

@@ -94,7 +94,7 @@ namespace Admin_DBProj
 
             Response.Clear();
             Response.Buffer = true;
-            Response.AddHeader("content-disposition", "attachment;filename={fileName}");
+            Response.AddHeader("content-disposition", $"attachment;filename= Total_Sales_Export.csv");
             Response.Charset = "";
             Response.ContentType = "application/text";
             Response.Output.Write(csv);
