@@ -173,7 +173,7 @@ namespace Admin_DBProj.Customer
                         Response.Cookies["cartData"].Expires = DateTime.Now.AddDays(-1);
 
                         // Redirect to homepage or any other page
-                        Response.Redirect("Customer_Homepage.aspx");
+                        Response.Redirect("Customer_Thankyou.aspx");
                 }
             }
         }

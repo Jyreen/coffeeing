@@ -134,6 +134,7 @@
     <Content Include="Customer\Customer_Checkout.aspx" />
     <Content Include="Customer\Customer_Homepage.aspx" />
     <Content Include="Customer\Customer_Products.aspx" />
+    <Content Include="Customer\Customer_Thankyou.aspx" />
     <Content Include="Customer\js\cart.js" />
     <Content Include="Customer\js\checkout.js" />
     <Content Include="Customer\js\main.js" />
@@ -272,6 +273,13 @@
     </Compile>
     <Compile Include="Customer\Customer_Products.aspx.designer.cs">
       <DependentUpon>Customer_Products.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Customer\Customer_Thankyou.aspx.cs">
+      <DependentUpon>Customer_Thankyou.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Customer\Customer_Thankyou.aspx.designer.cs">
+      <DependentUpon>Customer_Thankyou.aspx</DependentUpon>
     </Compile>
     <Compile Include="Customer\Login\Customer_Login.aspx.cs">
       <DependentUpon>Customer_Login.aspx</DependentUpon>
