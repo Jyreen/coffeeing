@@ -30,7 +30,7 @@
               "RelativeDocumentMoniker": "Admin_DBProj\\Customer\\Customer_Checkout.aspx.cs",
               "ToolTip": "C:\\Users\\pc\\Desktop\\coffeeing\\Admin_DBProj\\Customer\\Customer_Checkout.aspx.cs",
               "RelativeToolTip": "Admin_DBProj\\Customer\\Customer_Checkout.aspx.cs",
-              "ViewState": "AQIAABcBAAAAAAAAAAAwwCUBAAAAAAAA",
+              "ViewState": "AQIAAEsBAAAAAAAAAAAAAFkBAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-26T17:50:24.024Z",
               "EditorCaption": ""
@@ -42,8 +42,7 @@
               "DocumentMoniker": "ViewDataWindow_MSSQL__/_LocalDB__MSSQLLocalDB/C__USERS_PC_DESKTOP_COFFEEING_ADMIN_DBPROJ_APP_DATA_COFFEING_DB.MDF/True/SqlTable/dbo.SAVED_DELIVERY_ADDRESS.sql",
               "ToolTip": "dbo.SAVED_DELIVERY_ADDRESS [Data]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2024-05-26T17:45:11.159Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-26T17:45:11.159Z"
             },
             {
               "$type": "Document",
@@ -52,8 +51,7 @@
               "DocumentMoniker": "ViewDataWindow_MSSQL__/_LocalDB__MSSQLLocalDB/C__USERS_PC_DESKTOP_COFFEEING_ADMIN_DBPROJ_APP_DATA_COFFEING_DB.MDF/True/SqlTable/dbo.ACCOUNT.sql",
               "ToolTip": "dbo.ACCOUNT [Data]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
-              "WhenOpened": "2024-05-26T17:39:34.141Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-26T17:39:34.141Z"
             }
           ]
         }

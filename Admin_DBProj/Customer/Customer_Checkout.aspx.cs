@@ -281,21 +281,15 @@ namespace Admin_DBProj.Customer
             // Open the document
             document.Open();
 
-            cartItems = (List<CartItem>)Session["CartItems"];
-            decimal subtotal = cartItems.Sum(item => item.ProductPrice * item.Quantity);
-            decimal tax = subtotal * 0.05m;
-            decimal shipping = 15.00m;
-            decimal grandTotal = subtotal + tax + shipping;
-
             // Add a title to the document
             var titleFont = FontFactory.GetFont("Arial", 18, Font.BOLD);
             document.Add(new Paragraph("Order Receipt", titleFont) { Alignment = Element.ALIGN_CENTER });
             document.Add(new Paragraph("\n")); // Add some space
 
             // Add customer name and address dynamically
-            document.Add(new Paragraph("Customer Name: " + customerName));
-            document.Add(new Paragraph("Address: " + customerAddress));
-            document.Add(new Paragraph("Date: " + DateTime.Now.ToString("dd/MM/yyyy")));
+            document.Add(new Paragraph("               Customer Name: " + customerName));
+            document.Add(new Paragraph("               Address: " + customerAddress));
+            document.Add(new Paragraph("              Date: " + DateTime.Now.ToString("dd/MM/yyyy")));
             document.Add(new Paragraph("\n")); // Add some space
 
             // Add content to the document
@@ -311,6 +305,11 @@ namespace Admin_DBProj.Customer
                 table.AddCell(item.ProductPrice.ToString("0.00"));
                 table.AddCell(item.Quantity.ToString());
             }
+
+            decimal subtotal = cartItems.Sum(item => item.ProductPrice * item.Quantity);
+            decimal tax = subtotal * 0.05m;
+            decimal shipping = 15.00m;
+            decimal grandTotal = subtotal + tax + shipping;
 
             document.Add(table);
 
