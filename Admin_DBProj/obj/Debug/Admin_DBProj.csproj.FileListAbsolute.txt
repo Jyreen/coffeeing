@@ -804,3 +804,6 @@ C:\Users\pc\Desktop\coffeeing_db2proj\Admin_DBProj\obj\Debug\Admin_DBProj.csproj
 C:\Users\pc\Desktop\coffeeing_db2proj\Admin_DBProj\obj\Debug\Admin_DB.98A433B8.Up2Date
 C:\Users\pc\Desktop\coffeeing_db2proj\Admin_DBProj\obj\Debug\Admin_DBProj.dll
 C:\Users\pc\Desktop\coffeeing_db2proj\Admin_DBProj\obj\Debug\Admin_DBProj.pdb
+D:\coffeeing_db2proj\Admin_DBProj\bin\BouncyCastle.Crypto.dll
+D:\coffeeing_db2proj\Admin_DBProj\bin\itextsharp.dll
+D:\coffeeing_db2proj\Admin_DBProj\bin\itextsharp.xml

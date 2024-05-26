@@ -9,6 +9,11 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Web.Script.Serialization;
 using System.Net;
+using System.Drawing.Printing;
+using System.IO;
+using System.Xml.Linq;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace Admin_DBProj.Customer
 {
@@ -172,6 +177,8 @@ namespace Admin_DBProj.Customer
                         cartItems.Clear();
                         Response.Cookies["cartData"].Expires = DateTime.Now.AddDays(-1);
 
+                        ExportPDF(sender, e);
+
                         // Redirect to homepage or any other page
                         Response.Redirect("Customer_Thankyou.aspx");
                 }
@@ -203,54 +210,78 @@ namespace Admin_DBProj.Customer
             return addressID;
         }
 
-
-        protected void ExportCSV(object sender, EventArgs e, string tableName)
+        protected void ExportPDF(object sender, EventArgs e)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-
-            using (SqlConnection con = new SqlConnection(connectionString))
+            try
             {
-                using (SqlCommand cmd = new SqlCommand($"SELECT * FROM {tableName}", con))
+                if (Session["CartItems"] == null || !((List<CartItem>)Session["CartItems"]).Any())
                 {
-                    using (SqlDataAdapter sda = new SqlDataAdapter())
-                    {
-                        cmd.Connection = con;
-                        sda.SelectCommand = cmd;
-                        using (DataTable dt = new DataTable())
-                        {
-                            sda.Fill(dt);
-
-                            string csv = string.Empty;
-
-                            foreach (DataColumn column in dt.Columns)
-                            {
-                                csv += column.ColumnName + ',';
-                            }
-
-                            csv += "\r\n";
-
-                            foreach (DataRow row in dt.Rows)
-                            {
-                                foreach (DataColumn column in dt.Columns)
-                                {
-                                    csv += row[column.ColumnName].ToString().Replace(",", ";") + ',';
-                                }
-
-                                csv += "\r\n";
-                            }
-
-                            Response.Clear();
-                            Response.Buffer = true;
-                            Response.AddHeader("content-disposition", $"attachment;filename={tableName}Export.csv"); // Here we correctly concatenate/interpolate the tableName variable
-                            Response.Charset = "";
-                            Response.ContentType = "application/text";
-                            Response.Output.Write(csv);
-                            Response.Flush();
-                            Response.End();
-                        }
-                    }
+                    Response.Write("<script>alert('Your cart is empty.');</script>");
+                    return;
                 }
+
+                List<CartItem> cartItems = (List<CartItem>)Session["CartItems"];
+                decimal subtotal = cartItems.Sum(item => item.ProductPrice * item.Quantity);
+                decimal tax = subtotal * 0.05m;
+                decimal shipping = 15.00m;
+                decimal grandTotal = subtotal + tax + shipping;
+
+                // Create a new PDF document
+                Document document = new Document(PageSize.A4, 50, 50, 25, 25);
+                MemoryStream memoryStream = new MemoryStream();
+                PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+                document.Open();
+
+                // Add content to the PDF
+                document.Add(new Paragraph("Order Receipt"));
+                document.Add(new Paragraph("Date: " + DateTime.Now.ToString("dd/MM/yyyy")));
+                document.Add(new Paragraph(" "));
+                PdfPTable table = new PdfPTable(4);
+                table.WidthPercentage = 100;
+                table.SetWidths(new float[] { 10, 40, 25, 25 });
+
+                table.AddCell("No");
+                table.AddCell("Product");
+                table.AddCell("Quantity");
+                table.AddCell("Price");
+
+                int count = 1;
+                foreach (var item in cartItems)
+                {
+                    table.AddCell(count.ToString());
+                    table.AddCell(item.ProductName);
+                    table.AddCell(item.Quantity.ToString());
+                    table.AddCell(item.ProductPrice.ToString("0.00"));
+                    count++;
+                }
+
+                document.Add(table);
+
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph("Subtotal: " + subtotal.ToString("0.00")));
+                document.Add(new Paragraph("Tax: " + tax.ToString("0.00")));
+                document.Add(new Paragraph("Shipping: " + shipping.ToString("0.00")));
+                document.Add(new Paragraph("Grand Total: " + grandTotal.ToString("0.00")));
+
+                document.Close();
+                writer.Close();
+                byte[] bytes = memoryStream.ToArray();
+                memoryStream.Close();
+
+                Response.Clear();
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("Content-Disposition", "attachment; filename=OrderReceipt.pdf");
+                Response.Buffer = true;
+                Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                Response.BinaryWrite(bytes);
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                // Log the error (consider using a logging framework)
+                Response.Write("<script>alert('Error generating PDF: " + ex.Message + "');</script>");
             }
         }
+
     }
 }

@@ -33,9 +33,9 @@
     <h2>Recent Orders</h2>
     <asp:GridView ID="gvRecentOrders" runat="server" AutoGenerateColumns="False" CssClass="table table-striped" DataSourceID="SqlDataSource1">
         <Columns>
-            <asp:BoundField DataField="PRODUCT_NAME" HeaderText="PRODUCT_NAME" SortExpression="PRODUCT_NAME" />
-            <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="PRODUCT_PRICE" SortExpression="PRODUCT_PRICE" />
-            <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="ORDER_DETAILS_QUANTITY" SortExpression="ORDER_DETAILS_QUANTITY" />
+            <asp:BoundField DataField="PRODUCT_NAME" HeaderText="PRODUCT NAME" SortExpression="PRODUCT_NAME" />
+            <asp:BoundField DataField="PRODUCT_PRICE" HeaderText="PRODUCT PRICE" SortExpression="PRODUCT_PRICE" />
+            <asp:BoundField DataField="ORDER_DETAILS_QUANTITY" HeaderText="QUANTITY" SortExpression="ORDER_DETAILS_QUANTITY" />
         </Columns>
     </asp:GridView>
        <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" SelectCommand="SP_RECENTORDERS_USER" SelectCommandType="StoredProcedure">
