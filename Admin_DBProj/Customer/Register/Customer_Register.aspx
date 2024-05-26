@@ -23,7 +23,7 @@
             </div>
             <div class="input-group-2">
                 <asp:TextBox ID="txtAddress" runat="server" placeholder="Address" CssClass="input-textbox" />
-                <asp:TextBox ID="txtContactNumber" runat="server" placeholder="Contact No." CssClass="input-textbox" TextMode="Number" />
+                <asp:TextBox ID="txtContactNumber" runat="server" placeholder="Contact No." CssClass="input-textbox" />
             </div>
             <div class="input-group">
                 <asp:TextBox ID="txtEmail" runat="server" placeholder="Email" CssClass="input-textbox" TextMode="Email" />

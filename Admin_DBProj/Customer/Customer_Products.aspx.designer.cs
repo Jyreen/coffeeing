@@ -7,11 +7,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Admin_DBProj.Customer {
-    
-    
-    public partial class Customer_Products {
-        
+namespace Admin_DBProj.Customer
+{
+
+
+    public partial class Customer_Products
+    {
+
         /// <summary>
         /// form1 control.
         /// </summary>
@@ -20,5 +22,14 @@ namespace Admin_DBProj.Customer {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+
+        /// <summary>
+        /// Login control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor Login;
     }
 }

@@ -24,7 +24,7 @@
             <a href="Customer_Homepage.aspx">Home</a>
             <a href="Customer_Profile.aspx">Profile</a> 
             <a href="Customer_products.aspx">Shop</a> 
-            <a href="Login/Customer_Login.aspx">Login</a> 
+            <a href="Login/Customer_Login.aspx" id="Login" runat="server">Login</a>
             <a href="Customer_Cart.aspx"><i class="fas fa-shopping-cart"></i>Cart</a>
         </nav>
     </header>

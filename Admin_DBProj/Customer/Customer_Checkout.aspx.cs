@@ -131,58 +131,114 @@ namespace Admin_DBProj.Customer
                 // Begin a transaction
                 using (SqlTransaction transaction = cn.BeginTransaction())
                 {
-                        // Insert into ORDER table
-                        int newOrderID;
-                        using (SqlCommand cmd = new SqlCommand("SP_InsertOrder", cn, transaction))
+                    // Insert into ORDER table
+                    int newOrderID;
+                    using (SqlCommand cmd = new SqlCommand("SP_InsertOrder", cn, transaction))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@OrderDate", orderDate);
+                        cmd.Parameters.AddWithValue("@OrderTotal", orderTotal);
+                        cmd.Parameters.AddWithValue("@OrderStatusID", orderStatusID);
+                        cmd.Parameters.AddWithValue("@AddressID", addressID);
+                        cmd.Parameters.AddWithValue("@AccountID", accountID);
+                        cmd.Parameters.AddWithValue("@FeedbackID", feedbackID.HasValue ? (object)feedbackID.Value : DBNull.Value);
+                        cmd.Parameters.AddWithValue("@PaymentID", paymentID);
+
+                        SqlParameter outputIdParam = new SqlParameter("@NewOrderID", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputIdParam);
+                        cmd.ExecuteNonQuery();
+
+                        newOrderID = (int)outputIdParam.Value;
+                    }
+
+                    // Insert into ORDER_DETAILS table
+                    foreach (var item in cartItems)
+                    {
+                        using (SqlCommand cmd = new SqlCommand("SP_InsertOrderDetails", cn, transaction))
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.AddWithValue("@OrderDate", orderDate);
-                            cmd.Parameters.AddWithValue("@OrderTotal", orderTotal);
-                            cmd.Parameters.AddWithValue("@OrderStatusID", orderStatusID);
-                            cmd.Parameters.AddWithValue("@AddressID", addressID);
-                            cmd.Parameters.AddWithValue("@AccountID", accountID);
-                            cmd.Parameters.AddWithValue("@FeedbackID", feedbackID.HasValue ? (object)feedbackID.Value : DBNull.Value);
-                            cmd.Parameters.AddWithValue("@PaymentID", paymentID);
+                            cmd.Parameters.AddWithValue("@ProductID", item.ProductID);
+                            cmd.Parameters.AddWithValue("@ProductPrice", item.ProductPrice);
+                            cmd.Parameters.AddWithValue("@OrderID", newOrderID);
+                            cmd.Parameters.AddWithValue("@OrderDetailsQuantity", item.Quantity);
 
-                            SqlParameter outputIdParam = new SqlParameter("@NewOrderID", SqlDbType.Int)
-                            {
-                                Direction = ParameterDirection.Output
-                            };
-                            cmd.Parameters.Add(outputIdParam);
                             cmd.ExecuteNonQuery();
-
-                            newOrderID = (int)outputIdParam.Value;
                         }
+                    }
 
-                        // Insert into ORDER_DETAILS table
-                        foreach (var item in cartItems)
-                        {
-                            using (SqlCommand cmd = new SqlCommand("SP_InsertOrderDetails", cn, transaction))
-                            {
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.AddWithValue("@ProductID", item.ProductID);
-                                cmd.Parameters.AddWithValue("@ProductPrice", item.ProductPrice);
-                                cmd.Parameters.AddWithValue("@OrderID", newOrderID);
-                                cmd.Parameters.AddWithValue("@OrderDetailsQuantity", item.Quantity);
+                    // Commit the transaction
+                    transaction.Commit();
 
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
+                    // Get customer name and address by AccountID
+                    string customerName = GetCustomerName(accountID);
+                    string customerAddress = GetCustomerAddress(addressID);
 
-                        // Commit the transaction
-                        transaction.Commit();
+                    GenerateReceiptPDF(cartItems, customerName, customerAddress);
 
-                        // Clear the cart after successful order
-                        Session["CartItems"] = null;
-                        cartItems.Clear();
-                        Response.Cookies["cartData"].Expires = DateTime.Now.AddDays(-1);
+                    // Clear the cart after successful order
+                    Session["CartItems"] = null;
+                    cartItems.Clear();
+                    Response.Cookies["cartData"].Expires = DateTime.Now.AddDays(-1);
 
-                        ExportPDF(sender, e);
-
-                        // Redirect to homepage or any other page
-                        Response.Redirect("Customer_Thankyou.aspx");
+                    // Redirect to homepage or any other page
+                    Response.Redirect("Customer_Thankyou.aspx");
                 }
             }
+        }
+
+        //Helpers
+
+        private string GetCustomerName(int accountID)
+        {
+            string customerName = "";
+            string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+            using (SqlConnection cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                string query = "SELECT ACC_NAME FROM ACCOUNT WHERE ACC_ID_PK = @AccountID";
+
+                using (SqlCommand cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@AccountID", accountID);
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        customerName = result.ToString();
+                    }
+                }
+            }
+
+            return customerName;
+        }
+
+        private string GetCustomerAddress(int addressID)
+        {
+            string customerAddress = "";
+            string connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+            using (SqlConnection cn = new SqlConnection(connectionString))
+            {
+                cn.Open();
+                string query = "SELECT SD_ADD_ADDRESS FROM SAVED_DELIVERY_ADDRESS WHERE SD_ADD_ID_PK = @AddressID";
+
+                using (SqlCommand cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@AddressID", addressID);
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        customerAddress = result.ToString();
+                    }
+                }
+            }
+
+            return customerAddress;
         }
 
         private int GetAddressID(int accountID)
@@ -210,78 +266,80 @@ namespace Admin_DBProj.Customer
             return addressID;
         }
 
-        protected void ExportPDF(object sender, EventArgs e)
+        //GenerateReceipt
+        private void GenerateReceiptPDF(List<CartItem> cartItems, string customerName, string customerAddress)
         {
-            try
+            // Create a document
+            Document document = new Document(PageSize.A4, 50, 50, 25, 25);
+
+            // Specify memory stream for PDF content
+            MemoryStream memoryStream = new MemoryStream();
+
+            // Create PdfWriter instance
+            PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+
+            // Open the document
+            document.Open();
+
+            cartItems = (List<CartItem>)Session["CartItems"];
+            decimal subtotal = cartItems.Sum(item => item.ProductPrice * item.Quantity);
+            decimal tax = subtotal * 0.05m;
+            decimal shipping = 15.00m;
+            decimal grandTotal = subtotal + tax + shipping;
+
+            // Add a title to the document
+            var titleFont = FontFactory.GetFont("Arial", 18, Font.BOLD);
+            document.Add(new Paragraph("Order Receipt", titleFont) { Alignment = Element.ALIGN_CENTER });
+            document.Add(new Paragraph("\n")); // Add some space
+
+            // Add customer name and address dynamically
+            document.Add(new Paragraph("Customer Name: " + customerName));
+            document.Add(new Paragraph("Address: " + customerAddress));
+            document.Add(new Paragraph("Date: " + DateTime.Now.ToString("dd/MM/yyyy")));
+            document.Add(new Paragraph("\n")); // Add some space
+
+            // Add content to the document
+            PdfPTable table = new PdfPTable(3); // 3 columns
+            table.AddCell("Product Name");
+            table.AddCell("Price");
+            table.AddCell("Quantity");
+
+            // Add cart items to the table
+            foreach (var item in cartItems)
             {
-                if (Session["CartItems"] == null || !((List<CartItem>)Session["CartItems"]).Any())
-                {
-                    Response.Write("<script>alert('Your cart is empty.');</script>");
-                    return;
-                }
-
-                List<CartItem> cartItems = (List<CartItem>)Session["CartItems"];
-                decimal subtotal = cartItems.Sum(item => item.ProductPrice * item.Quantity);
-                decimal tax = subtotal * 0.05m;
-                decimal shipping = 15.00m;
-                decimal grandTotal = subtotal + tax + shipping;
-
-                // Create a new PDF document
-                Document document = new Document(PageSize.A4, 50, 50, 25, 25);
-                MemoryStream memoryStream = new MemoryStream();
-                PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
-                document.Open();
-
-                // Add content to the PDF
-                document.Add(new Paragraph("Order Receipt"));
-                document.Add(new Paragraph("Date: " + DateTime.Now.ToString("dd/MM/yyyy")));
-                document.Add(new Paragraph(" "));
-                PdfPTable table = new PdfPTable(4);
-                table.WidthPercentage = 100;
-                table.SetWidths(new float[] { 10, 40, 25, 25 });
-
-                table.AddCell("No");
-                table.AddCell("Product");
-                table.AddCell("Quantity");
-                table.AddCell("Price");
-
-                int count = 1;
-                foreach (var item in cartItems)
-                {
-                    table.AddCell(count.ToString());
-                    table.AddCell(item.ProductName);
-                    table.AddCell(item.Quantity.ToString());
-                    table.AddCell(item.ProductPrice.ToString("0.00"));
-                    count++;
-                }
-
-                document.Add(table);
-
-                document.Add(new Paragraph(" "));
-                document.Add(new Paragraph("Subtotal: " + subtotal.ToString("0.00")));
-                document.Add(new Paragraph("Tax: " + tax.ToString("0.00")));
-                document.Add(new Paragraph("Shipping: " + shipping.ToString("0.00")));
-                document.Add(new Paragraph("Grand Total: " + grandTotal.ToString("0.00")));
-
-                document.Close();
-                writer.Close();
-                byte[] bytes = memoryStream.ToArray();
-                memoryStream.Close();
-
-                Response.Clear();
-                Response.ContentType = "application/pdf";
-                Response.AddHeader("Content-Disposition", "attachment; filename=OrderReceipt.pdf");
-                Response.Buffer = true;
-                Response.Cache.SetCacheability(HttpCacheability.NoCache);
-                Response.BinaryWrite(bytes);
-                Response.End();
+                table.AddCell(item.ProductName);
+                table.AddCell(item.ProductPrice.ToString("0.00"));
+                table.AddCell(item.Quantity.ToString());
             }
-            catch (Exception ex)
-            {
-                // Log the error (consider using a logging framework)
-                Response.Write("<script>alert('Error generating PDF: " + ex.Message + "');</script>");
-            }
+
+            document.Add(table);
+
+            // Add totals
+            document.Add(new Paragraph("\n")); // Add some space
+            PdfPTable totalsTable = new PdfPTable(2); // 2 columns for totals
+            totalsTable.AddCell("Subtotal:");
+            totalsTable.AddCell(subtotal.ToString("0.00"));
+            totalsTable.AddCell("Tax:");
+            totalsTable.AddCell(tax.ToString("0.00"));
+            totalsTable.AddCell("Shipping:");
+            totalsTable.AddCell(shipping.ToString("0.00"));
+            totalsTable.AddCell("Grand Total:");
+            totalsTable.AddCell(grandTotal.ToString("0.00"));
+
+            document.Add(totalsTable);
+
+            // Close the document
+            document.Close();
+
+            // Set response headers
+            Response.ContentType = "application/pdf";
+            Response.AddHeader("content-disposition", "attachment;filename=OrderReceipt.pdf");
+
+            // Write the PDF to response output stream
+            Response.OutputStream.Write(memoryStream.GetBuffer(), 0, memoryStream.GetBuffer().Length);
+            Response.OutputStream.Flush();
+            Response.OutputStream.Close();
+            Response.End();
         }
-
     }
 }

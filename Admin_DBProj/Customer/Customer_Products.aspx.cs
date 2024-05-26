@@ -19,6 +19,15 @@ namespace Admin_DBProj.Customer
         {
             if (!IsPostBack)
             {
+                if (Session["AccountID"] != null)
+                {
+                    Login.Visible = false;
+                }
+                else
+                {
+                    Login.Visible = true;
+                }
+
                 Products = GetProductsFromDataBase();
             }
         }
