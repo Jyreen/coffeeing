@@ -60,23 +60,33 @@ namespace Admin_DBProj
                     command.Parameters.AddWithValue("@ACC_PNUM", contactNumber);
                     command.Parameters.AddWithValue("@ACC_PASSWORD", password);
 
+                    // Define the output parameter
+                    SqlParameter outputIdParam = new SqlParameter("@ACC_ID", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    command.Parameters.Add(outputIdParam);
+
                     try
                     {
                         connection.Open();
                         command.ExecuteNonQuery();
+
+                        // Retrieve the newly created ACC_ID
+                        int newAccountId = (int)outputIdParam.Value;
 
                         // Refresh the GridView after adding the customer
                         BindGridView();
                         // Clear the input fields after adding the customer
                         ClearInputBoxes();
 
-                        string script = "<script type=\"text/javascript\">alert('User added successfully!');</script>";
+                        string script = $"<script type=\"text/javascript\">alert('User added successfully! New Account ID: {newAccountId}');</script>";
                         Response.Write(script);
                     }
                     catch (Exception ex)
                     {
-                        string error = "<script type=\"text/javascript\">alert('An error occurred:');</script>";
-                        Response.Write(error + ex.Message);
+                        string error = $"<script type=\"text/javascript\">alert('An error occurred: {ex.Message}');</script>";
+                        Response.Write(error);
                     }
                 }
             }

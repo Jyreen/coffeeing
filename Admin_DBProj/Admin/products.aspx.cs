@@ -34,11 +34,10 @@ namespace Admin_DBProj
 
         protected void btnAddProduct_Click(object sender, EventArgs e)
         {
-            string name = txtName.Text;
-            string description = txtDesc.Text;
-            string price = txtPrice.Text;
-            string quantity = txtQuantity.Text;
-
+            string name = txtName.Text.Trim();
+            string description = txtDesc.Text.Trim();
+            string priceText = txtPrice.Text.Trim();
+            string quantityText = txtQuantity.Text.Trim();
 
             int categoryId = 0;
             if (ddlCategory.SelectedItem != null)
@@ -46,11 +45,11 @@ namespace Admin_DBProj
                 string selectedCategory = ddlCategory.SelectedItem.Value;
                 if (selectedCategory == "Donut")
                 {
-                    categoryId = 0; // Category 1 is for donuts
+                    categoryId = 0; // Category 0 is for donuts
                 }
                 else if (selectedCategory == "Coffee")
                 {
-                    categoryId = 1; // Category 2 is for coffee
+                    categoryId = 1; // Category 1 is for coffee
                 }
             }
 
@@ -62,28 +61,57 @@ namespace Admin_DBProj
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
+                    // Validate and convert the price
+                    decimal priceValue;
+                    if (decimal.TryParse(priceText, out priceValue))
+                    {
+                        if (priceValue < 0)
+                        {
+                            Response.Write("<script>alert('Price cannot be negative.');</script>");
+                            return;
+                        }
+                        command.Parameters.AddWithValue("@PRODUCT_PRICE", priceValue);
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid price value.');</script>");
+                        return;
+                    }
+
+                    // Validate and convert the quantity
+                    int quantityValue;
+                    if (int.TryParse(quantityText, out quantityValue))
+                    {
+                        if (quantityValue < 0)
+                        {
+                            Response.Write("<script>alert('Quantity cannot be negative.');</script>");
+                            return;
+                        }
+                        command.Parameters.AddWithValue("@PRODUCT_QUANTITY", quantityValue);
+                    }
+                    else
+                    {
+                        Response.Write("<script>alert('Invalid quantity value.');</script>");
+                        return;
+                    }
+
                     command.Parameters.AddWithValue("@PRODUCT_NAME", name);
                     command.Parameters.AddWithValue("@PRODUCT_DESC", description);
-                    command.Parameters.AddWithValue("@PRODUCT_PRICE", price);
-                    command.Parameters.AddWithValue("@PRODUCT_QUANTITY", quantity);
                     command.Parameters.AddWithValue("@CATEGORY_ID", categoryId); // Pass the category ID
-                   
 
                     try
                     {
                         connection.Open();
                         int productId = Convert.ToInt32(command.ExecuteScalar());
 
-                      
                         BindGridView();
-                      
                         ClearInputBoxes();
 
                         Response.Write("<script>alert('Product added successfully.');</script>");
                     }
                     catch (Exception ex)
                     {
-                        Response.Write("An error occurred: " + ex.Message);
+                        Response.Write("<script>alert('An error occurred: " + ex.Message + "');</script>");
                     }
                 }
             }
@@ -196,11 +224,16 @@ namespace Admin_DBProj
                     decimal priceValue;
                     if (decimal.TryParse(uPrice.Text.Trim(), out priceValue))
                     {
+                        if (priceValue < 0)
+                        {
+                            Response.Write("<script>alert('Price cannot be negative.');</script>");
+                            return;
+                        }
                         command.Parameters.AddWithValue("@PRODUCT_PRICE", priceValue);
                     }
                     else
                     {
-                        Response.Write("Invalid price value.");
+                        Response.Write("<script>alert('Invalid price value.');</script>");
                         return;
                     }
 
@@ -208,15 +241,20 @@ namespace Admin_DBProj
                     int quantityValue;
                     if (int.TryParse(uQuantity.Text.Trim(), out quantityValue))
                     {
+                        if (quantityValue < 0)
+                        {
+                            Response.Write("<script>alert('Quantity cannot be negative.');</script>");
+                            return;
+                        }
                         command.Parameters.AddWithValue("@PRODUCT_QUANTITY", quantityValue);
                     }
                     else
                     {
-                        Response.Write("Invalid quantity value.");
+                        Response.Write("<script>alert('Invalid quantity value.');</script>");
                         return;
                     }
 
-                   
+
                     int categoryValue;
                     if (uCategory.SelectedValue == "1" || uCategory.SelectedValue == "0")
                     {
@@ -247,7 +285,6 @@ namespace Admin_DBProj
                         con.Open();
                         command.ExecuteNonQuery();
                         string script = "<script type=\"text/javascript\">alert('Product updated successfully!');</script>";
-                        BindGridView();
                         Response.Write(script);
                     }
                     catch (Exception ex)
